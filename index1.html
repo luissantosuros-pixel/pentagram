@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PENTAGRAN</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="loginScreen" class="login-screen">
+
+<h1>PENTAGRAN</h1>
+
+<input id="userName" placeholder="Usuario">
+
+<input id="userPass" type="password" placeholder="Contraseña">
+
+<button onclick="login()">Entrar</button>
+
+<button onclick="registerUser()">Crear cuenta</button>
+
+</div>
+
+<div id="app" class="hidden">
+
+<header>
+
+<div class="logo">PENTAGRAN</div>
+
+<div>
+<button onclick="logout()">🚪</button>
+</div>
+
+</header>
+
+<section id="home" class="section active"></section>
+
+<section id="create" class="section">
+
+<h2>Nueva publicación</h2>
+
+<textarea id="postText"></textarea>
+
+<input type="file" id="postImage" accept="image/*">
+
+<button onclick="createPost()">Publicar foto</button>
+
+<hr>
+
+<h2>Nuevo Reel</h2>
+
+<input id="reelTitle">
+
+<input type="file" id="reelVideo" accept="video/*">
+
+<button onclick="createReel()">Publicar reel</button>
+
+</section>
+
+<section id="reels" class="section"></section>
+
+<section id="profile" class="section">
+
+<div class="profile">
+
+<div class="avatar">👤</div>
+
+<h2 id="profileName"></h2>
+
+<p id="profileBio"></p>
+
+<button onclick="editProfile()">Editar perfil</button>
+
+</div>
+
+</section>
+
+<nav>
+
+<button onclick="openSection('home')">🏠</button>
+
+<button onclick="openSection('create')">➕</button>
+
+<button onclick="openSection('reels')">🎬</button>
+
+<button onclick="openSection('profile')">👤</button>
+
+</nav>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
