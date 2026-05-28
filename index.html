@@ -3,41 +3,134 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PENTAGRAN</title>
-<link rel="stylesheet" href="style.css">
-</head>
+<title>PENTAGRAM</title>
 
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#fafafa;
+}
+
+header{
+position:fixed;
+top:0;
+width:100%;
+background:white;
+display:flex;
+justify-content:space-between;
+padding:12px 18px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+z-index:10;
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+color:#c13584;
+}
+
+.section{
+display:none;
+padding-top:70px;
+padding-bottom:90px;
+}
+
+.active{
+display:block;
+}
+
+.post{
+background:white;
+margin:15px;
+padding:15px;
+border-radius:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+img{
+width:100%;
+border-radius:12px;
+margin-top:10px;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+width:100%;
+display:flex;
+justify-content:space-around;
+background:white;
+padding:10px;
+box-shadow:0 -2px 8px rgba(0,0,0,.08);
+}
+
+button{
+border:none;
+background:none;
+cursor:pointer;
+font-size:16px;
+}
+
+.main{
+background:#c13584;
+color:white;
+padding:10px 14px;
+border-radius:8px;
+margin:5px;
+}
+
+input,textarea{
+width:95%;
+padding:10px;
+margin:8px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.comment{
+background:#f5f5f5;
+padding:8px;
+margin-top:6px;
+border-radius:8px;
+}
+</style>
+</head>
 <body>
 
-<div id="loginScreen" class="login-screen">
+<div id="loginScreen">
 
-<h1>PENTAGRAN</h1>
+<div style="padding:30px;text-align:center;">
+
+<h1 style="color:#c13584;">PENTAGRAM</h1>
 
 <input id="userName" placeholder="Usuario">
 
 <input id="userPass" type="password" placeholder="Contraseña">
 
-<button onclick="login()">Entrar</button>
+<button class="main" onclick="login()">Entrar</button>
 
-<button onclick="registerUser()">Crear cuenta</button>
+<button class="main" onclick="register()">Crear cuenta</button>
 
 </div>
 
-<div id="app" class="hidden">
+</div>
+
+<div id="app" style="display:none;">
 
 <header>
 
-<div class="logo">PENTAGRAN</div>
+<div class="logo">PENTAGRAM</div>
 
-<div>
 <button onclick="logout()">🚪</button>
-</div>
 
 </header>
 
-<section id="home" class="section active"></section>
+<div id="home" class="section active"></div>
 
-<section id="create" class="section">
+<div id="create" class="section">
+
+<div style="padding:15px;">
 
 <h2>Nueva publicación</h2>
 
@@ -45,53 +138,320 @@
 
 <input type="file" id="postImage" accept="image/*">
 
-<button onclick="createPost()">Publicar foto</button>
-
-<hr>
-
-<h2>Nuevo Reel</h2>
-
-<input id="reelTitle">
-
-<input type="file" id="reelVideo" accept="video/*">
-
-<button onclick="createReel()">Publicar reel</button>
-
-</section>
-
-<section id="reels" class="section"></section>
-
-<section id="profile" class="section">
-
-<div class="profile">
-
-<div class="avatar">👤</div>
-
-<h2 id="profileName"></h2>
-
-<p id="profileBio"></p>
-
-<button onclick="editProfile()">Editar perfil</button>
+<button class="main" onclick="createPost()">Publicar</button>
 
 </div>
 
-</section>
+</div>
 
-<nav>
+<div id="profile" class="section">
+
+<div style="padding:20px;">
+
+<h2 id="profileName"></h2>
+
+<p id="followersCount"></p>
+
+<p id="followingCount"></p>
+
+</div>
+
+</div>
+
+<div class="bottom-nav">
 
 <button onclick="openSection('home')">🏠</button>
 
 <button onclick="openSection('create')">➕</button>
 
-<button onclick="openSection('reels')">🎬</button>
-
 <button onclick="openSection('profile')">👤</button>
-
-</nav>
 
 </div>
 
-<script src="app.js"></script>
+</div>
+
+<script>
+
+let currentUser=null;
+
+function getUsers(){
+return JSON.parse(localStorage.getItem("users")||"{}");
+}
+
+function saveUsers(users){
+localStorage.setItem("users",JSON.stringify(users));
+}
+
+function register(){
+
+let u=userName.value.trim();
+let p=userPass.value.trim();
+
+if(!u||!p)return;
+
+let users=getUsers();
+
+if(users[u]) return alert("Ya existe");
+
+users[u]={
+password:p,
+posts:[],
+followers:[],
+following:[]
+};
+
+saveUsers(users);
+
+alert("Cuenta creada");
+}
+
+function login(){
+
+let u=userName.value.trim();
+let p=userPass.value.trim();
+
+let users=getUsers();
+
+if(!users[u]) return;
+
+if(users[u].password!==p)return;
+
+currentUser=u;
+
+loginScreen.style.display="none";
+app.style.display="block";
+
+loadUser();
+}
+
+function logout(){
+
+currentUser=null;
+
+app.style.display="none";
+
+loginScreen.style.display="block";
+}
+
+function openSection(id){
+
+document.querySelectorAll(".section")
+.forEach(s=>s.classList.remove("active"));
+
+document.getElementById(id)
+.classList.add("active");
+}
+
+function loadUser(){
+
+renderPosts();
+
+renderProfile();
+}
+
+function renderProfile(){
+
+let users=getUsers();
+
+profileName.innerText=currentUser;
+
+followersCount.innerText=
+"Seguidores: "+users[currentUser].followers.length;
+
+followingCount.innerText=
+"Siguiendo: "+users[currentUser].following.length;
+}
+
+function createPost(){
+
+let text=postText.value;
+
+let file=postImage.files[0];
+
+if(!file)return;
+
+let reader=new FileReader();
+
+reader.onload=function(){
+
+let users=getUsers();
+
+users[currentUser].posts.unshift({
+
+id:Date.now(),
+
+text:text,
+
+image:reader.result,
+
+likes:[],
+
+comments:[]
+});
+
+saveUsers(users);
+
+postText.value="";
+postImage.value="";
+
+renderPosts();
+
+openSection("home");
+};
+
+reader.readAsDataURL(file);
+}
+
+function toggleLike(owner,id){
+
+let users=getUsers();
+
+let post=users[owner].posts.find(p=>p.id===id);
+
+let i=post.likes.indexOf(currentUser);
+
+if(i===-1){
+
+post.likes.push(currentUser);
+
+}else{
+
+post.likes.splice(i,1);
+}
+
+saveUsers(users);
+
+renderPosts();
+}
+
+function addComment(owner,id){
+
+let text=prompt("Comentario:");
+
+if(!text)return;
+
+let users=getUsers();
+
+let post=users[owner].posts.find(p=>p.id===id);
+
+post.comments.push({
+user:currentUser,
+text:text
+});
+
+saveUsers(users);
+
+renderPosts();
+}
+
+function toggleFollow(user){
+
+if(user===currentUser)return;
+
+let users=getUsers();
+
+let me=users[currentUser];
+
+let other=users[user];
+
+let following=me.following.indexOf(user);
+
+if(following===-1){
+
+me.following.push(user);
+
+other.followers.push(currentUser);
+
+}else{
+
+me.following=
+me.following.filter(x=>x!==user);
+
+other.followers=
+other.followers.filter(x=>x!==currentUser);
+}
+
+saveUsers(users);
+
+renderPosts();
+
+renderProfile();
+}
+
+function renderPosts(){
+
+let users=getUsers();
+
+home.innerHTML="";
+
+for(let name in users){
+
+users[name].posts.forEach(post=>{
+
+let liked=
+post.likes.includes(currentUser);
+
+let following=
+users[currentUser].following.includes(name);
+
+let div=document.createElement("div");
+
+div.className="post";
+
+div.innerHTML=`
+
+<b>${name}</b>
+
+${name!==currentUser
+? `<button class="main"
+onclick="toggleFollow('${name}')">
+${following?"Siguiendo":"Seguir"}
+</button>`
+:""}
+
+<p>${post.text}</p>
+
+<img src="${post.image}">
+
+<div style="margin-top:10px;">
+
+<button onclick="toggleLike('${name}',${post.id})">
+
+${liked?"❤️":"🤍"} ${post.likes.length}
+
+</button>
+
+<button onclick="addComment('${name}',${post.id})">
+
+💬 ${post.comments.length}
+
+</button>
+
+</div>
+
+<div>
+
+${post.comments.map(c=>`
+
+<div class="comment">
+
+<b>${c.user}</b>: ${c.text}
+
+</div>
+
+`).join("")}
+
+</div>
+`;
+
+home.appendChild(div);
+
+});
+
+}
+}
+
+</script>
 
 </body>
 </html>
