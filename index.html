@@ -1,651 +1,183 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>PENTAGRAM</title>
-
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:#f6f6f8;
-color:#222;
-}
-
-header{
-position:fixed;
-top:0;
-left:0;
-right:0;
-height:70px;
-background:white;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:0 18px;
-border-bottom:1px solid #eee;
-z-index:100;
-}
-
-.logo{
-font-size:24px;
-font-weight:bold;
-color:#c13787;
-}
-
-.container{
-max-width:700px;
-margin:auto;
-padding:90px 14px 90px;
-}
-
-.hidden{
-display:none;
-}
-
-.stories{
-display:flex;
-gap:12px;
-overflow:auto;
-margin-bottom:18px;
-}
-
-.story{
-min-width:72px;
-background:white;
-border-radius:18px;
-padding:12px;
-text-align:center;
-box-shadow:0 2px 8px rgba(0,0,0,.05);
-cursor:pointer;
-}
-
-.card{
-background:white;
-padding:16px;
-border-radius:18px;
-margin-bottom:18px;
-box-shadow:0 3px 12px rgba(0,0,0,.06);
-}
-
-.username{
-font-weight:bold;
-color:#c13787;
-margin-bottom:8px;
-}
-
-.date{
-font-size:12px;
-color:#777;
-margin-bottom:10px;
-}
-
-.actions{
-display:flex;
-gap:14px;
-margin-top:12px;
-flex-wrap:wrap;
-}
-
-.action{
-cursor:pointer;
-}
-
-textarea,input{
-width:100%;
-padding:12px;
-border:none;
-border-radius:14px;
-background:#f3f3f3;
-margin-bottom:12px;
-}
-
-button{
-border:none;
-cursor:pointer;
-}
-
-.main-btn{
-width:100%;
-padding:14px;
-background:#c13787;
-color:white;
-border-radius:14px;
-}
-
-.comment{
-margin-top:8px;
-padding:10px;
-background:#fafafa;
-border-radius:12px;
-}
-
-.profile-grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:10px;
-margin-top:18px;
-}
-
-.grid-item{
-background:white;
-padding:18px;
-border-radius:14px;
-text-align:center;
-}
-
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-height:64px;
-background:white;
-display:flex;
-justify-content:space-around;
-align-items:center;
-font-size:24px;
-border-top:1px solid #eee;
-}
-
-.nav{
-cursor:pointer;
-}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#111;color:#fff}
+header{position:sticky;top:0;background:#151515;padding:14px 20px;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;z-index:10}
+.logo{font-size:28px;font-weight:700;background:linear-gradient(90deg,#ff00cc,#00d4ff);-webkit-background-clip:text;color:transparent}
+nav button{margin:0 6px;padding:10px 14px;border:none;border-radius:12px;background:#222;color:#fff;cursor:pointer}
+nav button:hover{background:#333}
+.page{display:none;padding:20px;max-width:1100px;margin:auto}
+.active{display:block}
+.card{background:#1b1b1b;border-radius:16px;padding:16px;margin:16px 0;border:1px solid #333}
+input,textarea{width:100%;padding:12px;margin:8px 0;border-radius:12px;border:none;background:#222;color:#fff}
+button.action{background:#ff00cc;color:#fff;padding:10px 14px;border:none;border-radius:12px;cursor:pointer}
+img,video{max-width:100%;border-radius:14px;margin-top:10px}
+#stories{display:flex;gap:10px;overflow:auto;margin-bottom:20px}
+.story{min-width:80px;height:80px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;border:3px solid #ff00cc}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid img,.grid video{height:180px;object-fit:cover;width:100%}
+.chatbox{height:260px;overflow:auto;background:#0f0f0f;padding:10px;border-radius:12px;margin-bottom:10px}
+.message{padding:8px;background:#222;border-radius:10px;margin:6px 0}
+.profile-top{display:flex;gap:20px;align-items:center}
+.avatar{width:90px;height:90px;border-radius:50%;background:#333;object-fit:cover}
+.stats{display:flex;gap:20px;margin-top:10px}
 </style>
 </head>
 <body>
-
 <header>
 <div class="logo">PENTAGRAM</div>
-<div>🔔 <span id="notify">0</span></div>
+<nav>
+<button onclick="showPage('home')">Inicio</button>
+<button onclick="showPage('explore')">Explorar</button>
+<button onclick="showPage('reels')">Reels</button>
+<button onclick="showPage('chat')">Chat</button>
+<button onclick="showPage('profile')">Perfil</button>
+</nav>
 </header>
 
-<div class="container">
-
-<!-- HOME -->
-<div id="home">
-
-<div class="stories">
-
-<div class="story">➕<br>Tú</div>
-<div class="story">🌸<br>Ana</div>
-<div class="story">🔥<br>Luis</div>
-<div class="story">🎵<br>Sara</div>
-
+<section id="home" class="page active">
+<div id="stories"></div>
+<div class="card">
+<h3>Crear publicación</h3>
+<textarea id="postText" placeholder="¿Qué estás pensando?"></textarea>
+<input type="file" id="postMedia" accept="image/*,video/*">
+<button class="action" onclick="createPost()">Publicar</button>
 </div>
-
-<input
-id="search"
-placeholder="Buscar..."
-onkeyup="render()">
-
 <div id="feed"></div>
+</section>
 
-</div>
-
-<!-- EXPLORE -->
-<div id="explore" class="hidden">
-
-<div class="card">
-<h2>Explorar 🔍</h2>
-<br>
-Descubre publicaciones nuevas.
-</div>
-
+<section id="explore" class="page">
+<h2>Explorar</h2>
 <div id="exploreFeed"></div>
+</section>
 
-</div>
-
-<!-- REELS -->
-<div id="reels" class="hidden">
-
-<div class="card">
-<h2>Reels 🎬</h2>
-</div>
-
+<section id="reels" class="page">
+<h2>Reels</h2>
 <div id="reelsFeed"></div>
+</section>
 
-</div>
-
-<!-- CREATE -->
-<div id="create" class="hidden">
-
+<section id="chat" class="page">
 <div class="card">
-
-<textarea
-id="postText"
-rows="5"
-placeholder="¿Qué quieres compartir?">
-</textarea>
-
-<button
-class="main-btn"
-onclick="createPost()">
-
-Publicar
-
-</button>
-
+<h2>Mensajes</h2>
+<div class="chatbox" id="chatMessages"></div>
+<input id="chatInput" placeholder="Escribe un mensaje...">
+<button class="action" onclick="sendMessage()">Enviar</button>
 </div>
+</section>
 
-</div>
-
-<!-- PROFILE -->
-<div id="profile" class="hidden">
-
+<section id="profile" class="page">
 <div class="card">
-
-<h2 id="profileName"></h2>
-
-<br>
-
-<button
-class="main-btn"
-onclick="editProfile()">
-
-Editar perfil
-
-</button>
-
-<br><br>
-
-Publicaciones:
-<b id="postCount">0</b>
-
-<br><br>
-
-Likes:
-<b id="totalLikes">0</b>
-
+<div class="profile-top">
+<img id="avatarPreview" class="avatar">
+<div>
+<input id="profileName" placeholder="Nombre">
+<textarea id="profileBio" placeholder="Bio"></textarea>
+<input type="file" id="avatarInput" accept="image/*">
+<button class="action" onclick="saveProfile()">Guardar perfil</button>
+<div class="stats">
+<div><b id="countPosts">0</b><br>posts</div>
+<div><b>120</b><br>seguidores</div>
+<div><b>89</b><br>siguiendo</div>
 </div>
-
-<div
-class="profile-grid"
-id="profileGrid">
 </div>
-
 </div>
-
 </div>
-
-<div class="bottom-nav">
-
-<div class="nav"
-onclick="showPage('home')">
-🏠
-</div>
-
-<div class="nav"
-onclick="showPage('explore')">
-🔍
-</div>
-
-<div class="nav"
-onclick="showPage('reels')">
-🎬
-</div>
-
-<div class="nav"
-onclick="showPage('create')">
-➕
-</div>
-
-<div class="nav"
-onclick="showPage('profile')">
-👤
-</div>
-
-</div>
+<div class="grid" id="profileGrid"></div>
+</section>
 
 <script>
+let posts=JSON.parse(localStorage.getItem('pentagram_posts')||'[]');
+let messages=JSON.parse(localStorage.getItem('pentagram_chat')||'[]');
+let profile=JSON.parse(localStorage.getItem('pentagram_profile')||'{"name":"Usuario","bio":"","avatar":""}');
 
-let username=
-localStorage.getItem("username")
-||"Tú";
-
-let notifications=
-Number(localStorage.getItem("notifications"))
-||0;
-
-let posts=
-JSON.parse(localStorage.getItem("posts"))
-||[];
-
-function save(){
-
-localStorage.setItem(
-"username",
-username
-);
-
-localStorage.setItem(
-"notifications",
-notifications
-);
-
-localStorage.setItem(
-"posts",
-JSON.stringify(posts)
-);
-
+function saveAll(){
+localStorage.setItem('pentagram_posts',JSON.stringify(posts));
+localStorage.setItem('pentagram_chat',JSON.stringify(messages));
+localStorage.setItem('pentagram_profile',JSON.stringify(profile));
 }
 
-function showPage(page){
-
-[
-"home",
-"explore",
-"reels",
-"create",
-"profile"
-]
-.forEach(id=>{
-
-document
-.getElementById(id)
-.classList
-.add("hidden");
-
-});
-
-document
-.getElementById(page)
-.classList
-.remove("hidden");
-
+function showPage(id){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById(id).classList.add('active');
 render();
-
 }
 
 function createPost(){
+const text=document.getElementById('postText').value;
+const file=document.getElementById('postMedia').files[0];
+if(!text && !file)return;
+if(file){
+const r=new FileReader();
+r.onload=()=>{
+posts.unshift({text,media:r.result,type:file.type,likes:0,comments:[]});
+saveAll();render();
+};
+r.readAsDataURL(file);
+}else{
+posts.unshift({text,media:'',type:'',likes:0,comments:[]});
+saveAll();render();
+}
+}
 
-const text=
-document
-.getElementById("postText")
-.value
-.trim();
+function likePost(i){posts[i].likes++;saveAll();render();}
+function deletePost(i){posts.splice(i,1);saveAll();render();}
+function addComment(i){
+const c=prompt('Comentario');
+if(c){posts[i].comments.push(c);saveAll();render();}
+}
 
-if(!text)return;
+function sendMessage(){
+const t=document.getElementById('chatInput').value;
+if(!t)return;
+messages.push(t);
+document.getElementById('chatInput').value='';
+saveAll();render();
+}
 
-posts.push({
-
-user:username,
-
-text:text,
-
-likes:0,
-
-comments:[],
-
-date:new Date()
-.toLocaleString()
-
+document.getElementById('avatarInput').addEventListener('change',e=>{
+const f=e.target.files[0];
+if(!f)return;
+const r=new FileReader();
+r.onload=()=>{profile.avatar=r.result;document.getElementById('avatarPreview').src=r.result;saveAll();};
+r.readAsDataURL(f);
 });
 
-document
-.getElementById("postText")
-.value="";
-
-save();
-
-showPage("home");
-
-}
-
-function likePost(i){
-
-posts[i].likes++;
-
-save();
-
-render();
-
-}
-
-function addComment(i){
-
-const input=
-document.getElementById(
-"comment-"+i
-);
-
-const value=
-input.value.trim();
-
-if(!value)return;
-
-posts[i]
-.comments
-.push(value);
-
-notifications++;
-
-save();
-
-render();
-
-}
-
-function deletePost(i){
-
-if(confirm("Eliminar?")){
-
-posts.splice(i,1);
-
-save();
-
-render();
-
-}
-
-}
-
-function editPost(i){
-
-const n=
-prompt(
-"Editar publicación:",
-posts[i].text
-);
-
-if(!n)return;
-
-posts[i].text=n;
-
-save();
-
-render();
-
-}
-
-function editProfile(){
-
-const n=
-prompt(
-"Tu nombre:",
-username
-);
-
-if(!n)return;
-
-username=n;
-
-save();
-
-render();
-
-}
-
-function renderCard(post,i){
-
-return `
-
-<div class="card">
-
-<div class="username">
-${post.user}
-</div>
-
-<div class="date">
-${post.date}
-</div>
-
-<div>
-${post.text}
-</div>
-
-<div class="actions">
-
-<div class="action"
-onclick="likePost(${i})">
-❤️ ${post.likes}
-</div>
-
-<div class="action"
-onclick="editPost(${i})">
-✏️
-</div>
-
-<div class="action"
-onclick="deletePost(${i})">
-🗑️
-</div>
-
-</div>
-
-${post.comments.map(c=>`
-
-<div class="comment">
-${c}
-</div>
-
-`).join("")}
-
-<input
-id="comment-${i}"
-placeholder="Comentar...">
-
-<button
-class="main-btn"
-onclick="addComment(${i})">
-
-Enviar
-
-</button>
-
-</div>
-
-`;
-
+function saveProfile(){
+profile.name=document.getElementById('profileName').value;
+profile.bio=document.getElementById('profileBio').value;
+saveAll();render();
 }
 
 function render(){
-
-document
-.getElementById("notify")
-.textContent=
-notifications;
-
-document
-.getElementById("profileName")
-.textContent=
-username;
-
-document
-.getElementById("postCount")
-.textContent=
-posts.length;
-
-let likes=0;
-
-posts.forEach(p=>likes+=p.likes);
-
-document
-.getElementById("totalLikes")
-.textContent=
-likes;
-
-const search=
-document
-.getElementById("search")
-.value
-.toLowerCase();
-
-document
-.getElementById("feed")
-.innerHTML=
-posts
-.slice()
-.reverse()
-.filter(p=>
-p.text
-.toLowerCase()
-.includes(search)
-)
-.map((p,index)=>
-renderCard(
-p,
-posts.length-1-index
-)
-)
-.join("");
-
-document
-.getElementById("exploreFeed")
-.innerHTML=
-posts
-.slice()
-.reverse()
-.map((p,index)=>
-renderCard(
-p,
-posts.length-1-index
-)
-)
-.join("");
-
-document
-.getElementById("reelsFeed")
-.innerHTML=
-posts
-.slice()
-.reverse()
-.map((p,index)=>
-renderCard(
-p,
-posts.length-1-index
-)
-)
-.join("");
-
-document
-.getElementById("profileGrid")
-.innerHTML=
-posts
-.slice()
-.reverse()
-.map(p=>`
-
-<div class="grid-item">
-
-${p.text.slice(0,40)}
-
-</div>
-
-`)
-.join("");
-
+const feed=document.getElementById('feed');
+const explore=document.getElementById('exploreFeed');
+const reels=document.getElementById('reelsFeed');
+const grid=document.getElementById('profileGrid');
+feed.innerHTML='';explore.innerHTML='';reels.innerHTML='';grid.innerHTML='';
+posts.forEach((p,i)=>{
+let media='';
+if(p.media){
+media=p.type.startsWith('video')?`<video controls src="${p.media}"></video>`:`<img src="${p.media}">`;
 }
-
+const card=`<div class='card'><b>${profile.name}</b><p>${p.text}</p>${media}<br><button class='action' onclick='likePost(${i})'>❤ ${p.likes}</button> <button class='action' onclick='addComment(${i})'>💬 ${p.comments.length}</button> <button class='action' onclick='deletePost(${i})'>🗑</button><div>${p.comments.map(c=>`<div class='message'>${c}</div>`).join('')}</div></div>`;
+feed.innerHTML+=card;
+explore.innerHTML+=card;
+if(p.type.startsWith('video'))reels.innerHTML+=card;
+if(p.media)grid.innerHTML+=p.type.startsWith('video')?`<video controls src='${p.media}'></video>`:`<img src='${p.media}'>`;
+});
+document.getElementById('chatMessages').innerHTML=messages.map(m=>`<div class='message'>${m}</div>`).join('');
+document.getElementById('profileName').value=profile.name;
+document.getElementById('profileBio').value=profile.bio;
+document.getElementById('avatarPreview').src=profile.avatar||'';
+document.getElementById('countPosts').textContent=posts.length;
+document.getElementById('stories').innerHTML=`<div class='story'>+</div><div class='story'>Ana</div><div class='story'>Luis</div><div class='story'>Mia</div>`;
+}
 render();
-
 </script>
-
 </body>
 </html>
